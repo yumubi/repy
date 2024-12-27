@@ -20,11 +20,10 @@ data class ClientConfig(
 
 @Serializable
 data class ProxyConfig(
-    @SerialName("protocol") val protocol: String,
-    @SerialName("proxy_addr") val proxyAddr: String,
-    @SerialName("remote_port") val remotePort: Int
+   @SerialName("protocol") val protocol: String,
+   @SerialName("proxy_addr") val proxyAddr: String,
+   @SerialName("remote_port") val remotePort: Int
 )
-
 
 @Serializable
 data class InitConfig(

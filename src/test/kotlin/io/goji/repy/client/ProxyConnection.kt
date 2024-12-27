@@ -4,10 +4,11 @@ import io.goji.repy.common.Constants
 import io.goji.repy.common.MessageCodec
 import io.goji.repy.config.InitConfig
 import io.goji.repy.config.ProxyConfig
-import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.net.NetClient
 import io.vertx.core.net.NetSocket
+import io.vertx.core.Vertx
+import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
@@ -68,25 +69,15 @@ class ProxyConnection(
         val initBuffer = Buffer.buffer()
             .appendUnsignedShort(initConfigJson.length)
             .appendString(initConfigJson)
-        logger.info("Sending init config: $initConfig")
 
-        try {
-            serverSocket?.write(initBuffer)?.compose{
-                serverSocket?.write(Buffer.buffer().appendString("initConfig sent"))
-            }
-                ?.coAwait()
-        } catch (e: Exception) {
-            logger.info("try to write initConfig error: $e")
-        }
+        serverSocket?.write(initBuffer)?.coAwait()
 
         // Start proxy handling
-        proxyJob = coroutineScope {
-            launch {
-                when (initConfig.protocol) {
-                    Constants.TCP -> handleTcpProxy()
-                    Constants.UDP -> handleUdpProxy()
-                    else -> throw IllegalStateException("Invalid protocol")
-                }
+        proxyJob = launch {
+            when (initConfig.protocol) {
+                Constants.TCP -> handleTcpProxy()
+                Constants.UDP -> handleUdpProxy()
+                else -> throw IllegalStateException("Invalid protocol")
             }
         }
 

@@ -6,7 +6,6 @@ import io.vertx.core.net.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 class Client(private val config: ClientConfig) {
@@ -38,7 +37,7 @@ class Client(private val config: ClientConfig) {
     }
 
     private fun startProxy(proxyConfig: ProxyConfig) {
-       runBlocking {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 connectToServer(proxyConfig)
             } catch (e: Exception) {
